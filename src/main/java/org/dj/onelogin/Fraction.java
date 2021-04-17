@@ -3,16 +3,14 @@ package org.dj.onelogin;
 import java.util.Objects;
 
 public class Fraction {
-
     public static Fraction ZERO = new Fraction(0, 0, 1);
 
-    public String str;
     public int whole;
     public int numerator;
     public int denominator;
 
-    public Fraction(String str) {
-        this.str = str;
+    public Fraction(int numerator, int denominator) {
+        this(0, numerator, denominator);
     }
 
     public Fraction(int whole, int numerator, int denominator) {
@@ -21,8 +19,8 @@ public class Fraction {
         this.denominator = denominator;
     }
 
-    public static Fraction from(int numerator, int denominator) {
-        int whole = numerator / denominator;
+    private Fraction simplify() {
+        whole += numerator / denominator;
         numerator %= denominator;
 
         int gcd = getGCD(numerator, denominator);
@@ -32,7 +30,7 @@ public class Fraction {
             denominator = 1;
         }
 
-        return new Fraction(whole, numerator, denominator);
+        return this;
     }
 
     private static int getGCD(int a, int b) {
@@ -48,44 +46,55 @@ public class Fraction {
 
     public Fraction add(Fraction other) {
         int lcm = getLCM(this.denominator, other.denominator);
-        int num = lcm / this.denominator * (this.whole * this.denominator + this.numerator)
-                +
-                lcm / other.denominator * (other.whole * other.denominator + other.numerator);
+        int num = lcm / this.denominator * getImproperNumerator(this)
+                + lcm / other.denominator * getImproperNumerator(other);
         int denom = lcm;
-        return Fraction.from(num, denom);
+        return new Fraction(num, denom).simplify();
+    }
+
+    private int getImproperNumerator(Fraction other) {
+        return other.whole * other.denominator + other.numerator;
     }
 
     public Fraction sub(Fraction other) {
         int lcm = getLCM(this.denominator, other.denominator);
-        int num = lcm / this.denominator * (this.whole * this.denominator + this.numerator)
-                -
-                lcm / other.denominator * (other.whole * other.denominator + other.numerator);
+        int num = lcm / this.denominator * getImproperNumerator(this)
+                - lcm / other.denominator * getImproperNumerator(other);
         int denom = lcm;
-        return Fraction.from(num, denom);
+        return new Fraction(num, denom).simplify();
     }
 
     public Fraction mul(Fraction other) {
-        int num = (this.whole * this.denominator + this.numerator)
-                *
-                (other.whole * other.denominator + other.numerator);
+        int num = getImproperNumerator(this) * getImproperNumerator(other);
         int denom = this.denominator * other.denominator;
-        return Fraction.from(num, denom);
+        return new Fraction(num, denom).simplify();
     }
 
     public Fraction div(Fraction other) {
-        int num = other.denominator * (this.whole * this.denominator + this.numerator);
-        int denom = this.denominator * (other.whole * other.denominator + other.numerator);
-        return Fraction.from(num, denom);
+        int num = other.denominator * getImproperNumerator(this);
+        int denom = this.denominator * getImproperNumerator(other);
+        return new Fraction(num, denom).simplify();
     }
 
     @Override
     public String toString() {
-        return "Fraction{" +
-                "str='" + str + '\'' +
-                ", whole=" + whole +
-                ", numerator=" + numerator +
-                ", denominator=" + denominator +
-                '}';
+        StringBuffer sb = new StringBuffer();
+        if (numerator != 0) {
+            sb.append(numerator).append('/').append(denominator);
+        }
+
+        if (whole != 0) {
+            if (numerator != 0) {
+                sb.insert(0, '_');
+            }
+            sb.insert(0, whole);
+        }
+
+        if (sb.length() == 0) {
+            sb.append(0);
+        }
+
+        return sb.toString();
     }
 
     @Override

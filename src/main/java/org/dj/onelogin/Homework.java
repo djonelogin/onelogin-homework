@@ -1,33 +1,65 @@
 package org.dj.onelogin;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 public class Homework {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Homework homework = new Homework();
 
-//        test(homework);
+        test(homework);
+
+//        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+//        while (true) {
+//            System.out.print("? ");
+//            String tx = br.readLine();
+//            System.out.println("= " + homework.calculate(tx));
+//        }
     }
 
     private static void test(Homework homework) {
         Fraction res;
-        res = homework.calculateNum(" 1/2 + 3/4  ");
-        assert(new Fraction(1, 1, 4).equals(res));
-        res = homework.calculateNum("3_1/2 + 1/2");
-        assert(new Fraction(4, 0, 1).equals(res));
-        res = homework.calculateNum("-1/2 + 2/3");
-        assert(new Fraction(0, 1, 6).equals(res));
-        res = homework.calculateNum("1/2 * 3_3/4");
-        assert(new Fraction(1, 7, 8).equals(res));
-        res = homework.calculateNum("2_3/8 + 9/8");
-        assert(new Fraction(3, 1, 2).equals(res));
-        res = homework.calculateNum("1/2 / 3/8");
-        assert(new Fraction(1, 1, 3).equals(res));
-        res = homework.calculateNum("3_1/2 / 2_4/9");
-        assert(new Fraction(1, 19, 44).equals(res));
+
+        res = homework.calculate(" -1/2  ");
+        System.out.println(res);
+        assert (new Fraction(1, 1, 4).equals(res));
+
+        res = homework.calculate(" -1/2 * 3  ");
+        System.out.println(res);
+        assert (new Fraction(1, 1, 4).equals(res));
+
+//        res = homework.calculate(" 1/2 + 3/4  ");
+//        assert (new Fraction(1, 1, 4).equals(res));
+//        res = homework.calculate("3_1/2 + 1/2");
+//        assert (new Fraction(4, 0, 1).equals(res));
+//        res = homework.calculate("-1/2 + 2/3");
+//        assert (new Fraction(0, 1, 6).equals(res));
+//        res = homework.calculate("1/2 * 3_3/4");
+//        assert (new Fraction(1, 7, 8).equals(res));
+//        res = homework.calculate("2_3/8 + 9/8");
+//        assert (new Fraction(3, 1, 2).equals(res));
+//        res = homework.calculate("1/2 / 3/8");
+//        assert (new Fraction(1, 1, 3).equals(res));
+//        res = homework.calculate("3_1/2 / 2_4/9");
+//        assert (new Fraction(1, 19, 44).equals(res));
+//        res = homework.calculate(" 1/2 + 3/4  * 2 ");
+//        assert (new Fraction(2, 0, 1).equals(res));
+//        res = homework.calculate(" 1/2 / 1/3");
+//        assert (new Fraction(1, 1, 2).equals(res));
+//        res = homework.calculate(" 1/2 / 1/3 + 4/9  * 2 ");
+//        assert (new Fraction(2, 7, 18).equals(res));
+////        res = homework.calculate(" 1/2 + 1/3 * 4/9  - 2 ");
+////        System.out.println(res);
+////        assert (new Fraction(-1, 19, 54).equals(res));
+//        res = homework.calculate("1/2 * 8");
+//        assert ("4".equals(res.toString()));
+//        res = homework.calculate("1_1/5 / 3");
+//        assert ("2/5".equals(res.toString()));
     }
 
     Map<Character, Integer> procedenceMap = new HashMap<Character, Integer>() {{
@@ -37,10 +69,8 @@ public class Homework {
         put('/', 2);
     }};
 
-    public Fraction calculateNum(String s) {
+    public Fraction calculate(String s) {
         s = s.trim();
-        s.replace("\\(-", "(0-");
-        s.replace("\\(\\+", "(0+");
 
         char[] cs = s.toCharArray();
         int n = s.length();
@@ -50,7 +80,7 @@ public class Homework {
 
         for (int i = 0; i >= 0 && i < n; i++) {
             char c = cs[i];
-            if (Character.isDigit(c)) {
+            if (Character.isDigit(c)) { // push a fraction
                 int end = s.indexOf(' ', i);
                 if (end == -1) {
                     end = n;
@@ -60,19 +90,20 @@ public class Homework {
                 i = end - 1;
             } else if (c == ' ') {
                 continue;
-            } else {
+            } else { // handle math operator
                 while (!opStack.isEmpty()) {
                     char prevOp = opStack.peek();
-                    if (procedenceMap.get(prevOp) >= procedenceMap.get(c)) {
-                        calc(numStack, opStack);
-                    } else {
+                    if (!shouldCalculate(c, prevOp)) {
                         break;
                     }
+
+                    calc(numStack, opStack);
                 }
                 opStack.push(c);
             }
         }
 
+        // finish calc if there's remaining
         while (!opStack.isEmpty()) {
             calc(numStack, opStack);
         }
@@ -80,8 +111,8 @@ public class Homework {
         return numStack.peek();
     }
 
-    private Fraction parseFraction(String s) {
-        return parseFraction(s.toCharArray(), 0, s.length());
+    private boolean shouldCalculate(char c, char prevOp) {
+        return procedenceMap.get(prevOp) >= procedenceMap.get(c);
     }
 
     private Fraction parseFraction(char[] cs, int start, int end) {
@@ -121,16 +152,14 @@ public class Homework {
         Fraction b = numStack.pop(), a = numStack.pop();
         char op = opStack.pop();
 
-        Fraction ans = null;
         if (op == '+') {
-            ans = a.add(b);
+            numStack.push(a.add(b));
         } else if (op == '-') {
-            ans = a.sub(b);
+            numStack.push(a.sub(b));
         } else if (op == '*') {
-            ans = a.mul(b);
+            numStack.push(a.mul(b));
         } else if (op == '/') {
-            ans = a.div(b);
+            numStack.push(a.div(b));
         }
-        numStack.push(ans);
     }
 }
