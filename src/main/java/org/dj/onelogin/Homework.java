@@ -10,10 +10,9 @@ import java.util.Map;
 
 public class Homework {
     public static void main(String[] args) throws IOException {
+        test();
+
         Homework homework = new Homework();
-
-        test(homework);
-
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
             System.out.print("? ");
@@ -22,7 +21,8 @@ public class Homework {
         }
     }
 
-    private static void test(Homework homework) {
+    private static void test() {
+        Homework homework = new Homework();
         Fraction res;
 
         res = homework.calculate("");
