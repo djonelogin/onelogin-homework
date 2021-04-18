@@ -25,6 +25,8 @@ public class Homework {
     private static void test(Homework homework) {
         Fraction res;
 
+        res = homework.calculate("");
+        assert ("0".equals(res.toString()));
         res = homework.calculate(" -1/2  ");
         assert ("-1/2".equals(res.toString()));
         res = homework.calculate(" -1/2 * 3  ");
@@ -55,6 +57,8 @@ public class Homework {
         assert ("4".equals(res.toString()));
         res = homework.calculate("1_1/5 / 3");
         assert ("2/5".equals(res.toString()));
+        res = homework.calculate("2_1/5 - 1/5");
+        assert ("2".equals(res.toString()));
     }
 
     Map<Character, Integer> procedenceMap = new HashMap<Character, Integer>() {{
