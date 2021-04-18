@@ -1,6 +1,8 @@
 package org.dj.onelogin;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,12 +14,12 @@ public class Homework {
 
         test(homework);
 
-//        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-//        while (true) {
-//            System.out.print("? ");
-//            String tx = br.readLine();
-//            System.out.println("= " + homework.calculate(tx));
-//        }
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        while (true) {
+            System.out.print("? ");
+            String tx = br.readLine();
+            System.out.println("= " + homework.calculate(tx));
+        }
     }
 
     private static void test(Homework homework) {
