@@ -2,33 +2,54 @@ package org.dj.onelogin;
 
 import java.util.Objects;
 
-public class Fraction {
-    public static Fraction ZERO = new Fraction(0, 0, 1);
+import static java.lang.Math.*;
 
-    public int whole;
+public class Fraction {
+    public static final Fraction ZERO = new Fraction(0, 1);
+
     public int numerator;
     public int denominator;
 
     public Fraction(int numerator, int denominator) {
-        this(0, numerator, denominator);
-    }
-
-    public Fraction(int whole, int numerator, int denominator) {
-        this.whole = whole;
         this.numerator = numerator;
         this.denominator = denominator;
     }
 
-    private Fraction simplify() {
-        whole += numerator / denominator;
-        numerator %= denominator;
+    public static Fraction parseFraction(char[] cs, int start, int end) {
+        int whole = 0, numerator = 0, denominator = 0;
+        int num = 0;
+        boolean isFraction = false;
+        for (int i = start; i < end; i++) {
+            char c = cs[i];
+            if (Character.isDigit(c)) {
+                num = num * 10 + (c - '0');
+            } else if (c == '/') {
+                isFraction = true;
 
-        int gcd = getGCD(numerator, denominator);
-        numerator /= gcd;
-        denominator /= gcd;
-        if (numerator % denominator == 0) {
+                numerator = num;
+                num = 0;
+            } else if (c == '_') {
+                whole = num;
+                num = 0;
+            }
+        }
+
+        if (isFraction) { // in case: "2"
+            denominator = num;
+        } else {
+            whole = num;
+            numerator = 0;
             denominator = 1;
         }
+
+        numerator = whole * denominator + numerator;
+        return new Fraction(numerator, denominator);
+    }
+
+    private Fraction simplify() {
+        int gcd = getGCD(abs(numerator), abs(denominator));
+        numerator /= gcd;
+        denominator /= gcd;
 
         return this;
     }
@@ -53,7 +74,7 @@ public class Fraction {
     }
 
     private int getImproperNumerator(Fraction other) {
-        return other.whole * other.denominator + other.numerator;
+        return other.numerator;
     }
 
     public Fraction sub(Fraction other) {
@@ -78,16 +99,23 @@ public class Fraction {
 
     @Override
     public String toString() {
+
+        int whole = abs(numerator) / denominator;
+        int num = abs(numerator) % denominator;
+
         StringBuffer sb = new StringBuffer();
-        if (numerator != 0) {
-            sb.append(numerator).append('/').append(denominator);
+        if (num != 0) {
+            sb.append(num).append('/').append(denominator);
         }
 
         if (whole != 0) {
-            if (numerator != 0) {
+            if (num != 0) {
                 sb.insert(0, '_');
             }
             sb.insert(0, whole);
+        }
+        if (numerator < 0) {
+            sb.insert(0, '-');
         }
 
         if (sb.length() == 0) {
@@ -102,11 +130,11 @@ public class Fraction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Fraction fraction = (Fraction) o;
-        return whole == fraction.whole && numerator == fraction.numerator && denominator == fraction.denominator;
+        return numerator == fraction.numerator && denominator == fraction.denominator;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(whole, numerator, denominator);
+        return Objects.hash(numerator, denominator);
     }
 }
