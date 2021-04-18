@@ -67,39 +67,34 @@ public class Fraction {
 
     public Fraction add(Fraction other) {
         int lcm = getLCM(this.denominator, other.denominator);
-        int num = lcm / this.denominator * getImproperNumerator(this)
-                + lcm / other.denominator * getImproperNumerator(other);
+        int num = lcm / this.denominator * this.numerator
+                + lcm / other.denominator * other.numerator;
         int denom = lcm;
         return new Fraction(num, denom).simplify();
     }
 
-    private int getImproperNumerator(Fraction other) {
-        return other.numerator;
-    }
-
     public Fraction sub(Fraction other) {
         int lcm = getLCM(this.denominator, other.denominator);
-        int num = lcm / this.denominator * getImproperNumerator(this)
-                - lcm / other.denominator * getImproperNumerator(other);
+        int num = lcm / this.denominator * this.numerator
+                - lcm / other.denominator * other.numerator;
         int denom = lcm;
         return new Fraction(num, denom).simplify();
     }
 
     public Fraction mul(Fraction other) {
-        int num = getImproperNumerator(this) * getImproperNumerator(other);
+        int num = this.numerator * other.numerator;
         int denom = this.denominator * other.denominator;
         return new Fraction(num, denom).simplify();
     }
 
     public Fraction div(Fraction other) {
-        int num = other.denominator * getImproperNumerator(this);
-        int denom = this.denominator * getImproperNumerator(other);
+        int num = other.denominator * this.numerator;
+        int denom = this.denominator * other.numerator;
         return new Fraction(num, denom).simplify();
     }
 
     @Override
     public String toString() {
-
         int whole = abs(numerator) / denominator;
         int num = abs(numerator) % denominator;
 
